@@ -6,10 +6,10 @@ class Ability
   def initialize(user)
     # user ||= User.includes(:role).new(username: "guess", password: "guess", role_id: 5)
 
-    can :read, Form if user.guess?
     can :manage, :all if user.admin?
-    can :read, [Form, Assignment] if user.developer?
-    can :read, Company if user.employee?
+    can %i[read create update], [Assignment, Form] if user.developer?
+    can %i[read update], Form if user.tester?
+    can :read, Assignment if user.tester?
     # cannot :create, Student if user.teacher?d
   end
 end

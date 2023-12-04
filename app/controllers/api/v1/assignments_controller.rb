@@ -1,12 +1,12 @@
 module Api
   module V1
     class AssignmentsController < ApplicationController
-      before_action :authenticate_user!
+      # before_action :authenticate_user!
       load_and_authorize_resource
       before_action :set_assignment, only: %i[ show update destroy ]
     
       def index
-        @assignments = Assignment.all
+        @assignments = current_user.assignments
 
         if @assignments.nil?
           render json: { errors: @assignments.errors.messages }, status: :unprocessable_entity
@@ -62,7 +62,7 @@ module Api
     
       private
       def set_assignment
-        @assignment = Assignment.find(params[:id])
+        @assignment = current_user.assignments.find(params[:id])
       end
     
       def assignment_params

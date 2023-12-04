@@ -3,7 +3,7 @@ module Api
     class UsersController < ApplicationController
       before_action :authenticate_user!
       load_and_authorize_resource
-      before_action :set_user, only: %i[show update destroy]
+      before_action :set_user, only: %i[show destroy]
 
       def index
         @users = User.all
@@ -23,23 +23,17 @@ module Api
       end
 
       def create
-        @user = User.new(user_params)
+        if params[:user][:company_id].present?
+          @user = User.new(user_params)
+        else
+          @company = Company.new(company_params)
+          @user = @company.users.build(user_params)
+        end
 
         if @user.save
-          render json: { user: serialize_user(@user) },
-          status: :created
+          render json: { user: serialize_user(@user) }, status: :created
         else
-          render json: @user.errors.messages, status: :unprocessable_entity
-        end
-      end
-
-      def update
-        if @user.update(user_params)
-          render json: {
-            user: serialize_user(@user)
-          }
-        else
-          render json: { error: @user.errors.messages }, status: :unprocessable_entity
+          render json: { errors: @user.errors.messages }, status: :unprocessable_entity
         end
       end
 
@@ -58,7 +52,11 @@ module Api
       end
 
       def user_params
-        params.require(:user).permit(:username, :email, :password, :role_id, :company_id)
+        params.require(:user).permit(:first_name, :last_name, :email, :password, :role, :company_id)
+      end
+
+      def company_params
+        params.require(:user).permit(company_attributes: [:name])
       end
 
       def serialize_user(user)

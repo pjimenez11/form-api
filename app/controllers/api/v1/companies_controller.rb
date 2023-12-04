@@ -1,7 +1,7 @@
 module Api
   module V1
     class CompaniesController < ApplicationController
-      before_action :authenticate_user!
+      # before_action :authenticate_user!
       load_and_authorize_resource
       before_action :set_company, only: %i[ show update destroy ]
 
@@ -53,7 +53,7 @@ module Api
       end
 
       def company_params
-        params.require(:company).permit(:name, :address, :description)
+        params.require(:company).permit(:name)
       end
 
       def serialized_company(company)

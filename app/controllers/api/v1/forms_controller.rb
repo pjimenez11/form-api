@@ -1,7 +1,7 @@
 module Api
   module V1
     class FormsController < ApplicationController
-      before_action :authenticate_user!
+      # before_action :authenticate_user!
       load_and_authorize_resource
       before_action :set_form, only: %i[ show update destroy ]
 
@@ -57,7 +57,7 @@ module Api
       end
 
       def form_params
-        params.require(:form).permit(:title, :description, :application_number,
+        params.require(:form).permit(:proyect_name, :description, :application_number,
                                      :date, :address, :justification, :status,
                                      :priority_level, :deadline, ).merge(user_id: current_user.id)
       end

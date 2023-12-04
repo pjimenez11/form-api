@@ -1,41 +1,46 @@
 class ApplicationController < ActionController::API
-  include CanCan::ControllerAdditions
+  before_action :authenticate_user!
 
-  rescue_from CanCan::AccessDenied do |exception|
-    render json: { error: 'Access denied', message: exception.message }, status: :forbidden
+  private
+
+  def respond_to_on_destroy
+    token = extract_token_from_headers
+
+    if token
+      jwt_payload = decode_token(token)
+      user_id = jwt_payload['sub']
+      current_user = User.find_by(id: user_id)
+
+      if current_user
+        current_user.update_column(:authentication_token, nil)
+
+        render json: {
+          status: { code: 200, message: 'User signed out successfully' }
+        }
+      else
+        render json: {
+          status: { code: 401, message: 'User not found or has no active session' }
+        }, status: :unauthorized
+      end
+    else
+      render json: {
+        status: { code: 401, message: 'Invalid or missing token' }
+      }, status: :unauthorized
+    end
   end
 
   private
 
-  def authenticate_user!
-    authorization_header = request.headers['Authorization']
-    
-    unless authorization_header
-      render json: { error: 'Missing authorization header' }, status: :unauthorized
-      return
-    end
-
-    token = authorization_header.split(' ').last
-    decoded_token = decode_token(token)
-
-    if decoded_token && user == User.find_by(id: decoded_token['user_id'])
-      sign_in user, store: true
-      @current_user = user
-    else
-      render json: { error: 'Invalid authentication token' }, status: :unauthorized
-    end
+  def extract_token_from_headers
+    request.headers['Authorization']&.split(' ')&.last
   end
 
   def decode_token(token)
     begin
-      JWT.decode(token, Rails.application.secret_key_base)[0]
+      JWT.decode(token, Rails.application.credentials.fetch(:secret_key_base)).first
     rescue JWT::DecodeError
       nil
     end
-  end
-
-  def current_user
-    @current_user
   end
 end
 

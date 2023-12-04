@@ -12,20 +12,12 @@ class FormSerializer < Panko::Serializer
              :requesting,
              :assigned_users
 
-  # def users
-  #   object.users
-  # end
-
-  # def assignments
-  #   object.assignments
-  # end
-
   def requesting
-    object.creator.username
+    [object.creator.first_name, object.creator.last_name].join(' ')
   end
 
   def assigned_users
     users = object.assigned_users
-    users.map(&:username)
+    users.map(&:first_name)
   end
 end
