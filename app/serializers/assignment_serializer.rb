@@ -2,6 +2,7 @@ class AssignmentSerializer < Panko::Serializer
   attributes :id,
              :user_assignment,
              :form,
+             :form_id,
              :application_number,
              :date_created,
              :requesting
@@ -16,6 +17,10 @@ class AssignmentSerializer < Panko::Serializer
 
   def application_number
     object.form.application_number
+  end
+
+  def form_id 
+    object.form.id
   end
 
   def date_created

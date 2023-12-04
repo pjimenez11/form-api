@@ -1,8 +1,10 @@
 class UserSerializer < Panko::Serializer
-  attributes :id,
-             :email,
-             :assignments,
-             :role
+  attributes  :id,
+              :first_name,
+              :last_name,
+              :email,
+              :assignments,
+              :role
 
   def assignments
     object.assignments

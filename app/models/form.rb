@@ -6,7 +6,8 @@ class Form < ApplicationRecord
   enum status: {
     created: 0,
     assigned: 1,
-    approved: 2
+    approved: 2,
+    canceled: 3,
   }
 
   enum priority_level: {
